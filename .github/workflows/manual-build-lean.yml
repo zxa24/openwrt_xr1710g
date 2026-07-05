@@ -85,17 +85,9 @@ jobs:
           sed -i 's/ luci-app-openclash//' target/linux/airoha/image/an7581.mk
           echo "已从 DEVICE_PACKAGES 去除 luci-app-openclash"
 
-      # ---- 修复 util-linux 2.42 在 musl 上的编译错误 (openwrt issue #23058) ----
-      # AT_HANDLE_FID 是 Linux 6.5+ 符号,musl 不定义;上游 commit 5452239f6e 加 fallback 宏。
-      # 下面 base64 即该补丁字节精确内容,写入 patches/ 后 OpenWrt 编译期自动套用。
-      - name: 修复 util-linux AT_HANDLE_FID (musl)
-        run: |
-          set -euxo pipefail
-          mkdir -p package/utils/util-linux/patches
-          base64 -d > package/utils/util-linux/patches/0100-nsenter-AT_HANDLE_FID-musl.patch <<'B64'
-          LS0tIGEvc3lzLXV0aWxzL25zZW50ZXIuYworKysgYi9zeXMtdXRpbHMvbnNlbnRlci5jCkBAIC0yOSw2ICsyOSw5IEBACiAjaWZkZWYgSEFWRV9MSU5VWF9OU0ZTX0gKICMgaW5jbHVkZSA8bGludXgvbnNmcy5oPgogI2VuZGlmCisjaWZuZGVmIEFUX0hBTkRMRV9GSUQKKyMgZGVmaW5lIEFUX0hBTkRMRV9GSUQgMHgyMDAKKyNlbmRpZgogI2lmbmRlZiBOU19HRVRfVVNFUk5TCiAjIGRlZmluZSBOU19HRVRfVVNFUk5TICAgICAgICAgICBfSU8oMHhiNywgMHgxKQogI2VuZGlmCg==
-          B64
-          echo "== 补丁已写入 =="; cat package/utils/util-linux/patches/0100-nsenter-AT_HANDLE_FID-musl.patch
+      # 注:util-linux 的 musl 编译错误(AT_HANDLE_FID / STATX_MNT_ID)已通过把
+      # package/utils/util-linux 升到 2.42.2(带全部 musl 修复)在仓库里直接解决,
+      # 见 fork 的该目录;此处不再注入逐符号补丁。
 
       - name: 安装依赖
         run: |
