@@ -61,7 +61,10 @@ jobs:
       - name: 修复脚本权限
         run: |
           set -euxo pipefail
-          chmod +x config/check-*.sh scripts/feeds scripts/*.sh scripts/*.pl scripts/config.guess
+          # 把 scripts/ 下所有文件加 +x —— 覆盖无扩展名脚本(ipkg-remove/ipkg-build 等),
+          # 否则 apk 打包阶段调用它们会 Permission denied (Error 126)。对数据文件加 +x 无害。
+          find scripts -type f -exec chmod +x {} +
+          chmod +x config/check-*.sh || true
 
       # ---- 新增:board 名补丁(仅对 xr1710g 生效) ----
       - name: 打 econet board 名补丁
